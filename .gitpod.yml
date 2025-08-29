@@ -1,0 +1,5 @@
+tasks:
+  - init: sudo apt update && wget https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-stable/microsoft-edge-stable_123.0.2420.97-1_amd64.deb && wget https://msedgewebdriverstorage.blob.core.windows.net/edgewebdriver/123.0.2420.97/edgedriver_linux64.zip
+  - command: sleep 15;sudo apt update && sudo apt install -y ./microsoft-edge-stable_123.0.2420.97-1_amd64.deb  && unzip edgedriver_linux64.zip &&  rm -r Driver_Notes && mkdir driver && mv msedgedriver driver/ && rm edgedriver_linux64.zip
+  - command: for i in {1..6}; do chmod 600 ~/.ssh/id_rsa && chmod 644 ~/.ssh/id_rsa.pub && ssh-keyscan github.com >> ~/.ssh/known_hosts; sleep 20; done
+  - command: git remote set-url origin git@github.com:Haymi12/Haymi12-PEP-GP-WebDevProject_Recipe.git && sed "s/\r$//" commit-command.sh | bash
