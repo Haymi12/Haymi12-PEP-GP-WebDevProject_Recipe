@@ -1,88 +1,66 @@
-/**
- * This script handles the login functionality for the Recipe Management Application.
- * It manages user authentication by sending login requests to the server and handling responses.
-*/
-const BASE_URL = "http://localhost:8081"; // backend URL
+const BASE_URL = "http://localhost:8081";
 
-/* 
- * TODO: Get references to DOM elements
- * - username input
- * - password input
- * - login button
- * - logout button (optional, for token testing)
- */
+window.addEventListener("DOMContentLoaded", () => {
+    const usernameInput = document.getElementById("login-input");
+    const passwordInput = document.getElementById("password-input");
+    const loginButton = document.getElementById("login-button");
+    const logoutButton = document.getElementById("logout-button");
+    const adminLink = document.getElementById("admin-link");
 
-/* 
- * TODO: Add click event listener to login button
- * - Call processLogin on click
- */
+    
+    const token = sessionStorage.getItem("auth-token");
+    const isAdmin = sessionStorage.getItem("is-admin") === "true";
+    if (adminLink) adminLink.style.display = isAdmin ? "inline-block" : "none";
+    if (logoutButton) logoutButton.style.display = token ? "inline-block" : "none";
+    if (logoutButton) logoutButton.addEventListener("click", logout);
 
+    if (loginButton) {
+        loginButton.addEventListener("click", async () => {
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
 
-/**
- * TODO: Process Login Function
- * 
- * Requirements:
- * - Retrieve values from username and password input fields
- * - Construct a request body with { username, password }
- * - Configure request options for fetch (POST, JSON headers)
- * - Send request to /login endpoint
- * - Handle responses:
- *    - If 200: extract token and isAdmin from response text
- *      - Store both in sessionStorage
- *      - Redirect to recipe-page.html
- *    - If 401: alert user about incorrect login
- *    - For others: show generic alert
- * - Add try/catch to handle fetch/network errors
- * 
- * Hints:
- * - Use fetch with POST method and JSON body
- * - Use sessionStorage.setItem("key", value) to store auth token and admin flag
- * - Use `window.location.href` for redirection
- */
-async function processLogin() {
-    // TODO: Retrieve username and password from input fields
-    // - Trim input and validate that neither is empty
+            if (!username || !password) {
+                alert("Enter both username and password");
+                return;
+            }
 
-    // TODO: Create a requestBody object with username and password
+            try {
+                const res = await fetch(`${BASE_URL}/login`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password })
+                });
 
-    const requestOptions = {
-        method: "POST",
-        mode: "cors",
-        cache: "no-cache",
-        credentials: "same-origin",
-        headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers": "*"
-        },
-        redirect: "follow",
-        referrerPolicy: "no-referrer",
-        body: JSON.stringify(requestBody)
-    };
+                if (res.status === 200) {
+                    const result = await res.text(); 
+                    const [token, adminFlag] = result.split(" ");
 
-    try {
-        // TODO: Send POST request to http://localhost:8081/login using fetch with requestOptions
+                    sessionStorage.setItem("auth-token", token);
+                    sessionStorage.setItem("is-admin", adminFlag);
 
-        // TODO: If response status is 200
-        // - Read the response as text
-        // - Response will be a space-separated string: "token123 true"
-        // - Split the string into token and isAdmin flag
-        // - Store both in sessionStorage using sessionStorage.setItem()
-
-        // TODO: Optionally show the logout button if applicable
-
-        // TODO: Add a small delay (e.g., 500ms) using setTimeout before redirecting
-        // - Use window.location.href to redirect to the recipe page
-
-        // TODO: If response status is 401
-        // - Alert the user with "Incorrect login!"
-
-        // TODO: For any other status code
-        // - Alert the user with a generic error like "Unknown issue!"
-
-    } catch (error) {
-        // TODO: Handle any network or unexpected errors
-        // - Log the error and alert the user
+                    window.location.href = "../recipe/recipe-page.html";
+                } else if (res.status === 401) {
+                    alert("Invalid username or password");
+                } else {
+                    alert("Login failed with status: " + res.status);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Network error during login");
+            }
+        });
     }
-}
 
+    function logout() {
+        const token = sessionStorage.getItem("auth-token");
+        if (!token) return;
+
+        fetch(`${BASE_URL}/logout`, {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${token}` }
+        }).finally(() => {
+            sessionStorage.clear();
+            window.location.reload();
+        });
+    }
+});
