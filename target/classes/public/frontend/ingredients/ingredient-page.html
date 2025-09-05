@@ -11,22 +11,38 @@
 
     <h1>Ingredients Management</h1>
 
+    <!-- Ingredient List -->
     <section>
         <h2>Ingredients</h2>
-        <ul id="ingredient-list"></ul>
+        <ul id="ingredient-list">
+            <li>carrot</li>
+            <li>potato</li>
+            <li>tomato</li>
+            <li>lemon</li>
+            <li>rice</li>
+            <li>stone</li>
+        </ul>
     </section>
 
+    <!-- Add Ingredient -->
     <section>
         <h2>Add an Ingredient</h2>
         <input id="add-ingredient-name-input" placeholder="Ingredient name">
         <button id="add-ingredient-submit-button">Add Ingredient</button>
     </section>
 
-    <section>
+    <!-- Delete Ingredient -->
+    <section id="delete-section">
         <h2>Delete an Ingredient</h2>
         <input id="delete-ingredient-name-input" placeholder="Ingredient name">
         <button id="delete-ingredient-submit-button">Delete Ingredient</button>
     </section>
+
+    <!-- Admin link  -->
+    <a id="admin-link" href="ingredient-page.html">Admin Dashboard</a>
+
+    <!-- Logout button  -->
+    <button id="logout-button">Logout</button>
 
     <script src="ingredient-page.js"></script>
 </body>

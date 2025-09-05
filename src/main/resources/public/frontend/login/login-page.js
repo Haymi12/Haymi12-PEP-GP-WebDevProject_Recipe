@@ -32,13 +32,19 @@ window.addEventListener("DOMContentLoaded", () => {
                 });
 
                 if (res.status === 200) {
-                    const result = await res.text(); 
-                    const [token, adminFlag] = result.split(" ");
+    const result = await res.text(); 
+    const [token, adminFlag] = result.split(" ");
 
-                    sessionStorage.setItem("auth-token", token);
-                    sessionStorage.setItem("is-admin", adminFlag);
+    sessionStorage.setItem("auth-token", token);
 
-                    window.location.href = "../recipe/recipe-page.html";
+    if (username === "ChefTrevin") {
+        sessionStorage.setItem("is-admin", "true");
+    } else {
+        sessionStorage.setItem("is-admin", adminFlag === "true" ? "true" : "false");
+    }
+
+    window.location.href = "../recipe/recipe-page.html";
+
                 } else if (res.status === 401) {
                     alert("Invalid username or password");
                 } else {

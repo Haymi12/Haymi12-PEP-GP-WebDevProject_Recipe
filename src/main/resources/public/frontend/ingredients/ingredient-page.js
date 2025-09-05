@@ -15,11 +15,13 @@ window.addEventListener("DOMContentLoaded", () => {
     if (adminLink) adminLink.style.display = isAdmin ? "inline-block" : "none";
     if (logoutButton) logoutButton.style.display = sessionStorage.getItem("auth-token") ? "inline-block" : "none";
 
+    // Event listeners
     if (addButton) addButton.addEventListener("click", addIngredient);
     if (deleteButton) deleteButton.addEventListener("click", deleteIngredient);
     if (backLink) backLink.addEventListener("click", () => window.location.href = "recipe-page.html");
     if (logoutButton) logoutButton.addEventListener("click", processLogout);
 
+    // Load ingredients 
     getIngredients();
 
     async function getIngredients() {
@@ -32,26 +34,12 @@ window.addEventListener("DOMContentLoaded", () => {
             console.warn("Backend fetch failed, using default ingredients", err);
         }
 
-        if (!ingredients || ingredients.length === 0) {
-            ingredients = [
-                { id: 1, name: "carrot" },
-                { id: 2, name: "potato" },
-                { id: 3, name: "tomato" },
-                { id: 4, name: "lemon" },
-                { id: 5, name: "rice" },
-                { id: 6, name: "stone" }
-            ];
-        }
-
-        refreshIngredientList();
-    }
-
-    function refreshIngredientList() {
-        ingredientList.innerHTML = "";
         ingredients.forEach(i => {
-            const li = document.createElement("li");
-            li.textContent = i.name;
-            ingredientList.appendChild(li);
+            if (![...ingredientList.children].some(li => li.textContent === i.name)) {
+                const li = document.createElement("li");
+                li.textContent = i.name;
+                ingredientList.appendChild(li);
+            }
         });
     }
 
@@ -71,7 +59,9 @@ window.addEventListener("DOMContentLoaded", () => {
             });
             if (res.ok) {
                 addInput.value = "";
-                getIngredients();
+                const li = document.createElement("li");
+                li.textContent = name;
+                ingredientList.appendChild(li);
             } else {
                 alert("Failed to add ingredient");
             }
@@ -85,20 +75,21 @@ window.addEventListener("DOMContentLoaded", () => {
         const name = deleteInput.value.trim();
         if (!name) return alert("Please provide an ingredient name to delete");
 
+        const liToRemove = [...ingredientList.children].find(li => li.textContent.toLowerCase() === name.toLowerCase());
+        if (!liToRemove) return alert("Ingredient not found");
+
         const ingredient = ingredients.find(i => i.name.toLowerCase() === name.toLowerCase());
-        if (!ingredient) return alert("Ingredient not found");
+        if (!ingredient) return alert("Ingredient not found in backend list");
 
         const token = sessionStorage.getItem("auth-token");
         try {
             const res = await fetch(`${BASE_URL}/ingredients/${ingredient.id}`, {
                 method: "DELETE",
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
+                headers: { "Authorization": `Bearer ${token}` }
             });
             if (res.ok) {
                 deleteInput.value = "";
-                getIngredients();
+                liToRemove.remove();
             } else {
                 alert("Failed to delete ingredient");
             }
